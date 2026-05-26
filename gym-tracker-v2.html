@@ -88,12 +88,6 @@ input:focus,select:focus{border-color:rgba(0,240,160,0.5);background:rgba(0,240,
 .routine-card:hover{transform:translateY(-2px);border-color:rgba(0,240,160,0.2);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
 .routine-card h3{margin:0 0 10px;font-size:16px;font-weight:700;display:flex;justify-content:space-between}
 .ex-list{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.6;font-weight:500}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(30px);display:none;align-items:center;justify-content:center;z-index:1000;flex-direction:column;padding:24px;opacity:0;transition:opacity .4s}
-.overlay.active{display:flex;opacity:1}
-.overlay-box{background:var(--card);border:1px solid var(--glass-border);border-radius:28px;padding:40px 32px;width:100%;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);transform:scale(0.9);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
-.overlay.active .overlay-box{transform:scale(1)}
-.overlay-label{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:3px;font-weight:700}
-.overlay-timer{font-size:72px;font-weight:900;margin:20px 0;font-variant-numeric:tabular-nums;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .toggle{display:flex;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);border-radius:14px;overflow:hidden;margin-bottom:18px;padding:4px}
 .toggle button{flex:1;padding:12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;border-radius:10px;transition:all .3s}
 .toggle button.active{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);color:#000;box-shadow:0 4px 15px var(--accent-glow)}
@@ -119,7 +113,7 @@ input:focus,select:focus{border-color:rgba(0,240,160,0.5);background:rgba(0,240,
 .week-row{display:flex;gap:6px;margin-top:12px;overflow-x:auto;padding-bottom:4px}
 .week-row::-webkit-scrollbar{display:none}
 .day-pill{min-width:44px;height:60px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex:1;transition:all .2s}
-.day-pill.has{border-color:rgba(0,240,160,0.3);background:rgba(0,240,160,0.06);color:var(--accent)}
+.day-pill.has(border-color:rgba(0,240,160,0.3);background:rgba(0,240,160,0.06);color:var(--accent)}
 .day-pill .d{font-size:10px;color:var(--muted);margin-bottom:2px;text-transform:uppercase}
 .routine-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);z-index:900;display:none;align-items:flex-end;justify-content:center;padding:0;opacity:0;transition:opacity .3s}
 .routine-picker-overlay.active{display:flex;opacity:1}
@@ -133,7 +127,7 @@ input:focus,select:focus{border-color:rgba(0,240,160,0.5);background:rgba(0,240,
 .pr-table td:last-child{color:var(--accent);font-weight:800;text-align:right}
 .pr-tag{display:inline-block;padding:3px 10px;border-radius:8px;font-size:11px;font-weight:700;background:rgba(0,240,160,0.12);color:var(--accent);border:1px solid rgba(0,240,160,0.25)}
 .progress-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-@media(max-width:400px){.aw-timer{font-size:38px;letter-spacing:1px}.rest-display{font-size:44px}.overlay-timer{font-size:56px}.header h1{font-size:18px}.card{padding:16px;border-radius:16px}.progress-grid{grid-template-columns:1fr}}
+@media(max-width:400px){.aw-timer{font-size:38px;letter-spacing:1px}.rest-display{font-size:44px}.header h1{font-size:18px}.card{padding:16px;border-radius:16px}.progress-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -294,14 +288,6 @@ input:focus,select:focus{border-color:rgba(0,240,160,0.5);background:rgba(0,240,
   </div>
 </div>
 
-<div class="overlay" id="timerOverlay" onclick="if(event.target===this)stopRest()">
-  <div class="overlay-box">
-    <div class="overlay-label">Rest Timer</div>
-    <div class="overlay-timer" id="overlayTimer">00:00</div>
-    <button class="btn btn-primary btn-block" style="margin-top:10px;" onclick="stopRest()">Stop Alarm</button>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
@@ -448,9 +434,6 @@ function handleAuth() {
     if (accounts[user]) { err.textContent = 'Username exists. Sign in instead.'; err.style.display = 'block'; return; }
     accounts[user] = { password: pass, created: new Date().toISOString() };
     saveAccounts(accounts);
-    // verify
-    var verify = getAccounts();
-    if (!verify[user]) { err.textContent = 'Save failed. Storage unavailable.'; err.style.display = 'block'; return; }
 
     currentUser = user;
     data = defaultData();
@@ -856,7 +839,10 @@ function toggleSet(exIdx, sIdx) {
   var s = activeWorkout.exercises[exIdx].sets[sIdx];
   if (!s.weight || !s.reps) { showToast('Enter weight and reps first', 'error'); return; }
   s.done = !s.done;
-  if (s.done) { startRest(90); showToast('Set completed! Rest 90s'); }
+  if (s.done) { 
+    startRest(90); 
+    showToast('Set completed! Rest 90s'); 
+  }
   renderActiveExercises();
 }
 
@@ -865,17 +851,14 @@ function startRest(sec) {
   stopRest();
   restSeconds = sec;
   updateRestDisplay();
-  var to = document.getElementById('timerOverlay');
   var rb = document.getElementById('restBox');
-  if (to) to.classList.add('active');
   if (rb) rb.classList.add('running');
   restInterval = setInterval(function() {
     restSeconds--;
     updateRestDisplay();
     if (restSeconds <= 0) {
-      playBeep();
-      var ot = document.getElementById('overlayTimer');
-      if (ot) ot.textContent = "TIME'S UP!";
+      clearInterval(restInterval);
+      restInterval = null;
       if (rb) rb.classList.remove('running');
       showToast('Rest is over! Next set!');
     }
@@ -893,10 +876,8 @@ function addRest(sec) {
 function stopRest() {
   clearInterval(restInterval);
   restInterval = null;
-  var to = document.getElementById('timerOverlay');
   var rb = document.getElementById('restBox');
   var rd = document.getElementById('restDisplay');
-  if (to) to.classList.remove('active');
   if (rb) rb.classList.remove('running');
   if (rd) rd.textContent = '00:00';
 }
@@ -905,32 +886,7 @@ function updateRestDisplay() {
   var ss = String(Math.max(0, restSeconds%60)).padStart(2,'0');
   var txt = mm + ':' + ss;
   var rd = document.getElementById('restDisplay');
-  var ot = document.getElementById('overlayTimer');
   if (rd) rd.textContent = txt;
-  if (ot) ot.textContent = txt;
-}
-function playBeep() {
-  try {
-    var AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-    var ctx = new AudioCtx();
-    for (var i = 0; i < 4; i++) {
-      (function(idx) {
-        setTimeout(function() {
-          var osc = ctx.createOscillator();
-          var gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.type = 'sine';
-          osc.frequency.value = 880 + (idx % 2 === 0 ? 0 : 440);
-          gain.gain.setValueAtTime(0.12, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-          osc.start();
-          osc.stop(ctx.currentTime + 0.25);
-        }, idx * 250);
-      })(i);
-    }
-  } catch(e) {}
 }
 
 // ================= FINISH / CANCEL =================
@@ -990,7 +946,7 @@ function renderRoutines() {
       '<h3>' + r.name + '<button class="btn btn-xs btn-ghost" onclick="deleteRoutine(' + i + ')">Delete</button></h3>' +
       '<div class="ex-list">';
     for (var j = 0; j < r.exercises.length; j++) {
-      html += '<div style="display:flex;justify-content:space-between;"><span>' + (j+1) + '. ' + r.exercises[j].name + '</span><span style="color:var(--muted;">' + (r.exercises[j].sets||4) + ' sets x ' + (r.exercises[j].reps||10) + ' reps</span></div>';
+      html += '<div style="display:flex;justify-content:space-between;"><span>' + (j+1) + '. ' + r.exercises[j].name + '</span><span style="color:var(--muted);">' + (r.exercises[j].sets||4) + ' sets x ' + (r.exercises[j].reps||10) + ' reps</span></div>';
     }
     html += '</div>' +
       '<button class="btn btn-primary btn-sm" onclick="configureWorkout(' + i + ')">Start Workout</button>' +
@@ -1452,5 +1408,5 @@ if (savedUser && accounts[savedUser]) {
 
 })();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a01758921ab145ed',t:'MTc3OTc0MTUyOQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
